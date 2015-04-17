@@ -28,7 +28,7 @@ public class Main {
 
 	public static void main(String[] args) {
 
-		String filepath = "/home/ankitkap/dic/data/veryverysmall/*.csv";
+		String filepath = "/home/ankitkap/dic/data/small/*.csv";
 		long startTime = new Date().getTime();
 		Configuration config = HBaseConfiguration.create();
 		HBaseAdmin admin = null;

@@ -47,15 +47,14 @@ public class Job4 {
 				 * stocks have the same volatility value */
 				for (Text stockName: iterable)
 					stockNameList.add(stockName.toString());
-
-				System.out.println(new Integer(counter).toString() + " )))) " + stockNameList + " )))) " + key.toString());
+				String counterString = new Integer(counter).toString();
 				
 				for (String stockName: stockNameList) {
 					/* If it's in the top 10 or bottom 10, write it */
 					if (counter <= 10 || counter > numOfStocks-10) {
-						byte[] rowId = Bytes.toBytes(new Integer(counter).toString());
+						byte[] rowId = Bytes.toBytes(counterString);
 						Put put = new Put(rowId);
-						put.add(Bytes.toBytes("name"), Bytes.toBytes("stock"), stockName.getBytes());
+						put.add(Bytes.toBytes("stock"), Bytes.toBytes("name"), stockName.getBytes());
 						put.add(Bytes.toBytes("price"), Bytes.toBytes("volatility"), key.toString().getBytes());
 						context.write(new ImmutableBytesWritable(rowId), put);
 					}
