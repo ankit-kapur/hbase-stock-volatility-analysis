@@ -57,10 +57,11 @@ public class Job3 {
 
 					if (volatility < 0.0 || volatility > 0.0) {
 						/* Apply the formula for xi */
-						DecimalFormat df = new DecimalFormat("0.0");
-						df.setMaximumFractionDigits(10);
-						String volatilityString = df.format(volatility);
-
+//						DecimalFormat df = new DecimalFormat("0.0");
+//						df.setMaximumFractionDigits(7);
+//						String volatilityString = df.format(volatility);
+						String volatilityString = String.valueOf(volatility);
+						
 						byte[] rowId = Bytes.toBytes(key.toString());
 						Put put = new Put(rowId);
 						put.add(Bytes.toBytes("price"),

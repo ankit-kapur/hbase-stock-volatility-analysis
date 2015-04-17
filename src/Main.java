@@ -18,6 +18,7 @@ import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Job;
@@ -104,7 +105,7 @@ public class Main {
 			scan.setCaching(500);
 			scan.setCacheBlocks(false);
 			TableMapReduceUtil.initTableMapperJob(table3Name, scan,
-					Job4.MyMapper.class, Text.class, Text.class, job4);
+					Job4.MyMapper.class, DoubleWritable.class, Text.class, job4);
 			TableMapReduceUtil.initTableReducerJob(table4Name,
 					Job4.MyTableReducer.class, job4);
 			job4.setNumReduceTasks(1);
@@ -131,9 +132,17 @@ public class Main {
 				sortedMap.put(rowKey, list);
 			}
 			
-			System.out.println("\n\n..:: Top 10 and bottom 10 stocks ::..");
-			for (String key: sortedMap.keySet())
+			System.out.println("\n..:: Top 10 stocks ::..");
+			for (int i=1; i<=10; i++) {
+				String key = String.valueOf(i);
 				System.out.println(sortedMap.get(key).get(0) + " ==> " + sortedMap.get(key).get(1));
+			}
+			System.out.println("\n..:: Bottom 10 stocks ::..");
+			//for (int i=(int)numOfStocks; i>(int)numOfStocks-10; i--) {
+			for (int i=(int)numOfStocks-9; i<=(int)numOfStocks; i++) {
+				String key = String.valueOf(i);
+				System.out.println(sortedMap.get(key).get(0) + " ==> " + sortedMap.get(key).get(1));
+			}
 			
 			/* Record the time taken */
 			long endTime = new Date().getTime();

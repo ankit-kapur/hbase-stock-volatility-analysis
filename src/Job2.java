@@ -74,9 +74,10 @@ public class Job2 {
 
 				/* Apply the formula for xi */
 				double xi = (adjEnd - adjBegin) / adjBegin;
-				DecimalFormat df = new DecimalFormat("0.0");
-				df.setMaximumFractionDigits(10);
-				String xiString = df.format(xi);
+//				DecimalFormat df = new DecimalFormat("0.0");
+//				df.setMaximumFractionDigits(10);
+//				String xiString = df.format(xi);
+				String xiString = String.valueOf(xi);
 
 				byte[] rowId = Bytes.toBytes(key.toString());
 				Put put = new Put(rowId);

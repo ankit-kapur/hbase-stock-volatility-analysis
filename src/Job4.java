@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,12 +9,13 @@ import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableMapper;
 import org.apache.hadoop.hbase.mapreduce.TableReducer;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Text;
 
 public class Job4 {
 
 	static int counter=1;
-	public static class MyMapper extends TableMapper<Text, Text> {
+	public static class MyMapper extends TableMapper<DoubleWritable, Text> {
 		public void map(ImmutableBytesWritable row, Result result,
 				Context context) throws IOException, InterruptedException {
 			String stockName = new String(result.getValue("stock".getBytes(),
@@ -24,15 +26,15 @@ public class Job4 {
 			String key = volatility;
 			String value = stockName;
 
-			context.write(new Text(key), new Text(value));
+			context.write(new DoubleWritable(Double.parseDouble(key)), new Text(value));
 		}
 	}
 
 	/* Reducer */
 	public static class MyTableReducer extends
-			TableReducer<Text, Text, ImmutableBytesWritable> {
+			TableReducer<DoubleWritable, Text, ImmutableBytesWritable> {
 
-		public void reduce(Text key, Iterable<Text> iterable, Context context)
+		public void reduce(DoubleWritable key, Iterable<Text> iterable, Context context)
 				throws IOException, InterruptedException {
 			int numOfStocks = 0;
 			List<String> stockNameList = new ArrayList<String>();
@@ -55,7 +57,12 @@ public class Job4 {
 						byte[] rowId = Bytes.toBytes(counterString);
 						Put put = new Put(rowId);
 						put.add(Bytes.toBytes("stock"), Bytes.toBytes("name"), stockName.getBytes());
-						put.add(Bytes.toBytes("price"), Bytes.toBytes("volatility"), key.toString().getBytes());
+						
+						DecimalFormat df = new DecimalFormat("0.00000000");
+						df.setMaximumFractionDigits(8);
+						String vol = df.format(key.get());
+						
+						put.add(Bytes.toBytes("price"), Bytes.toBytes("volatility"), vol.getBytes());
 						context.write(new ImmutableBytesWritable(rowId), put);
 					}
 					counter++;
