@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.text.DecimalFormat;
 
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
@@ -14,26 +15,21 @@ public class Job2 {
 
 		public void map(ImmutableBytesWritable row, Result result,
 				Context context) throws IOException, InterruptedException {
-			try {
-				String stockName = new String(result.getValue(
-						"stock".getBytes(), "name".getBytes()));
-				String yr = new String(result.getValue("time".getBytes(),
-						"yr".getBytes()));
-				String mm = new String(result.getValue("time".getBytes(),
-						"mm".getBytes()));
-				String dd = new String(result.getValue("time".getBytes(),
-						"dd".getBytes()));
-				String adjClose = new String(result.getValue(
-						"price".getBytes(), "price".getBytes()));
+			String stockName = new String(result.getValue("stock".getBytes(),
+					"name".getBytes()));
+			String yr = new String(result.getValue("time".getBytes(),
+					"yr".getBytes()));
+			String mm = new String(result.getValue("time".getBytes(),
+					"mm".getBytes()));
+			String dd = new String(result.getValue("time".getBytes(),
+					"dd".getBytes()));
+			String adjClose = new String(result.getValue("price".getBytes(),
+					"price".getBytes()));
 
-				String key = stockName + "#" + yr + "#" + mm;
-				String value = dd + "#" + adjClose;
+			String key = stockName + "#" + yr + "#" + mm;
+			String value = dd + "#" + adjClose;
 
-//				System.out.println(key + " ==> " + value);
-				context.write(new Text(key), new Text(value));
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			context.write(new Text(key), new Text(value));
 		}
 	}
 
@@ -47,10 +43,9 @@ public class Job2 {
 			try {
 				int firstDay = 32;
 				int lastDay = 0;
-				
+
 				for (Text result : iterable) {
 
-					System.out.println(key.toString() + " ---> " + result.toString());
 					String[] splits = result.toString().split("#");
 					int day = Integer.parseInt(splits[0]);
 					String price = splits[1];
@@ -79,8 +74,9 @@ public class Job2 {
 
 				/* Apply the formula for xi */
 				double xi = (adjEnd - adjBegin) / adjBegin;
-
-				System.out.println("xi: " + xi);
+				DecimalFormat df = new DecimalFormat("0.0");
+				df.setMaximumFractionDigits(10);
+				String xiString = df.format(xi);
 
 				byte[] rowId = Bytes.toBytes(key.toString());
 				Put put = new Put(rowId);
@@ -88,12 +84,11 @@ public class Job2 {
 						stockName);
 				put.add(Bytes.toBytes("time"), Bytes.toBytes("yr"), yr);
 				put.add(Bytes.toBytes("time"), Bytes.toBytes("mm"), mm);
-				put.add(Bytes.toBytes("price"), Bytes.toBytes("xi"), Double
-						.toString(xi).getBytes());
+				put.add(Bytes.toBytes("price"), Bytes.toBytes("xi"),
+						xiString.getBytes());
 
 				context.write(new ImmutableBytesWritable(rowId), put);
 			} catch (Exception e) {
-				System.out.println("firstDayPrice: " + firstDayPrice + ", lastDayPrice: " + lastDayPrice);
 				e.printStackTrace();
 			}
 		}
